@@ -103,6 +103,38 @@ class AlunoService{
         }
     }
 
+    async remove(id){
+        const idAluno = this.validarId(id);
+
+        /*Justificativa (Requisito 4): reaproveito a AlunoNaoEncontradoError (404) criada
+          no Requisito 2 — é o mesmo erro (id sem aluno correspondente), então não crio
+          uma nova classe. Antes de deletar, verifico a existência com findUnique; além
+          disso trato o erro P2025 do Prisma (\"Record to delete does not exist.\"),
+          caso o aluno seja removido entre a consulta e o delete. */
+
+        //Verifica se o aluno existe antes de remover
+        const alunoExistente = await prisma.aluno.findUnique({
+            where: {id: idAluno}
+        });
+        if(!alunoExistente){
+            throw new AlunoNaoEncontradoError();
+        }
+
+        try{
+            //DELETE FROM alunos WHERE id = ?
+            const alunoRemovido = await prisma.aluno.delete({
+                where: {id: idAluno}
+            });
+            return alunoRemovido;
+        }catch(e){
+            //P2025 = registro não encontrado (aluno removido por outra requisição)
+            if(e.code === "P2025"){
+                throw new AlunoNaoEncontradoError();
+            }
+            throw e;
+        }
+    }
+
     async create(aluno){
         const {nome, email} = aluno;
         if(!nome || !email){

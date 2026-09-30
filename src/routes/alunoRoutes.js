@@ -14,5 +14,6 @@ router.get("/:id", alunoController.findOne);
 //porque o enunciado permite atualizar apenas nome ou apenas email — diferente do POST,
 //em que validarAluno exige os dois campos.
 router.put("/:id", alunoController.update);
+router.delete("/:id", alunoController.remove);
 
 module.exports = router;

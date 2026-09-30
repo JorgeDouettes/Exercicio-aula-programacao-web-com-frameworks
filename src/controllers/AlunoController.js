@@ -37,6 +37,20 @@ class AlunoController{
         }
     }
 
+    async remove(request, response){
+        try{
+            const {id} = request.params;
+            const aluno = await alunoService.remove(id);
+            /*Status da remoção bem-sucedida: escolhi 200 com uma mensagem de confirmação
+              (e os dados removidos) para o cliente saber o que aconteceu. Alternativa
+              válida seria 204 No Content, com corpo vazio — aqui decidi informar o
+              resultado, pois a operação tem efeito visível para quem chamou a API. */
+            return response.status(200).json({message: "Aluno removido com sucesso", aluno});
+        }catch(e){
+            return response.status(e.statusCode || 500).json({error: e.message});
+        }
+    }
+
     async create(request, response){
         try{
             const aluno = await alunoService.create(request.body);
